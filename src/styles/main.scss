@@ -1,0 +1,21 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+#todo_list {
+    margin-top: 20px;
+
+    .todo_item {
+        display: flex;
+        // justify-content: space-between;
+        align-items: center;
+        font-size: 32px;
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+
+        button {
+            margin-left: 10px;
+            cursor: pointer;
+        }
+    }
+}
