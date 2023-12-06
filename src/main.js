@@ -18,7 +18,7 @@ function renderTodos() {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.checked = false;
-    checkbox.addEventListener('change', () => toggleTodoStatus(index, listItem));
+    checkbox.addEventListener('change', () => toggleTodoStatus(checkbox, listItem));
 
     const todoText = document.createElement('span');
     todoText.textContent = todo;
@@ -29,7 +29,7 @@ function renderTodos() {
 
     const editButton = document.createElement('button');
     editButton.textContent = 'Edit';
-    editButton.addEventListener('click', () => editTodo(listItem));
+    editButton.addEventListener('click', () => editTodo(listItem.querySelector('span')));
 
     listItem.appendChild(checkbox);
     listItem.appendChild(todoText);
@@ -38,9 +38,7 @@ function renderTodos() {
 
     todoList.appendChild(listItem);
 
-    if (checkbox.checked) {
-      listItem.classList.add('completed');
-    }
+
   });
 }
 
@@ -74,18 +72,14 @@ function editTodo(listItem, id) {
   });
 }
 function saveTodoChanges(id, newText) {
-  // const listItem = document.getElementById(id);
-  // listItem.contentEditable = 'false';
   console.log(`Saved changes for ${id}: ${newText}`);
 }
 
-function toggleTodoStatus(index, listItem) {
-  todos[index] = !todos[index];
-
-  renderTodos();
-
-  if (todos[index]) {
+function toggleTodoStatus(checkbox, listItem) {
+  console.log(checkbox);
+  if (checkbox.checked) {
     listItem.classList.add('completed');
+
   } else {
     listItem.classList.remove('completed');
   }
