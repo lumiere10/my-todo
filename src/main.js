@@ -1,86 +1,153 @@
 import './styles/main.scss';
-let todos = [];
+import './styles/common.scss';
 
-const buttonAddTodo = document.querySelector('.add_todo');
-console.log(buttonAddTodo);
-buttonAddTodo.addEventListener('click', () => {
-  addTodo();
-})
+let todos = JSON.parse(localStorage.getItem('todos')) || [];
+let liItem = 0;
+let isEditing = false;
+let editingTodoId;
 
-function renderTodos() {
-  const todoList = document.getElementById('todo_list');
-  todoList.innerHTML = '';
+const buttonShowDialog = document.querySelector('.add_todo');
+const buttonCloseDialog = document.querySelector('.close');
+const buttonSaveDialog = document.querySelector('.btn_save');
+const modalWindow = document.querySelector('#dialog');
+const filterButton = document.querySelectorAll('.filter');
 
-  todos.forEach((todo, index) => {
-    const listItem = document.createElement('li');
-    listItem.classList.add('todo_item');
-
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.checked = false;
-    checkbox.addEventListener('change', () => toggleTodoStatus(checkbox, listItem));
-
-    const todoText = document.createElement('span');
-    todoText.textContent = todo;
-
-    const removeButton = document.createElement('button');
-    removeButton.textContent = 'Remove item';
-    removeButton.addEventListener('click', () => removeTodo(index));
-
-    const editButton = document.createElement('button');
-    editButton.textContent = 'Edit';
-    editButton.addEventListener('click', () => editTodo(listItem.querySelector('span')));
-
-    listItem.appendChild(checkbox);
-    listItem.appendChild(todoText);
-    listItem.appendChild(removeButton);
-    listItem.appendChild(editButton);
-
-    todoList.appendChild(listItem);
-
-
+buttonShowDialog.addEventListener('click', () => showDialog());
+buttonCloseDialog.addEventListener('click', closeDialog);
+buttonSaveDialog.addEventListener('click', saveToLocalStorage);
+filterButton.forEach(btn => {
+  btn.addEventListener('click', function () {
+    const filteredTodos = filterTodos(btn);
+    renderTodos(filteredTodos);
   });
+});
+
+function showDialog() {
+  isEditing = false;
+  const newTodoInputTitle = modalWindow.querySelector('#title');
+  const newTodoTextarea = modalWindow.querySelector('#text');
+  newTodoInputTitle.value = '';
+  newTodoTextarea.value = '';
+  modalWindow.showModal();
 }
 
-function addTodo() {
-  const newTodoInput = document.getElementById('new_todo');
-  const newTodo = newTodoInput.value.trim();//get value from input
+function closeDialog() {
+  modalWindow.close();
+}
+function saveTodosToLocalStorage() {
+  localStorage.removeItem('todos');
+  localStorage.setItem('todos', JSON.stringify(todos));
+}
 
-  if (newTodo !== '') {
+
+function saveToLocalStorage() {
+  event.preventDefault();
+  const newTodoInputTitle = modalWindow.querySelector('#title');
+  const newTodoTextarea = modalWindow.querySelector('#text');
+
+  if (isEditing) {
+    const editedTodo = todos.find(todo => todo.id === editingTodoId);
+    if (editedTodo) {
+      editedTodo.title = newTodoInputTitle.value.trim();
+      editedTodo.text = newTodoTextarea.value.trim();
+    }
+  } else {
+    addTodo(newTodoInputTitle, newTodoTextarea);
+  }
+
+  saveTodosToLocalStorage();
+
+  modalWindow.close();
+  renderTodos();
+  isEditing = false;
+}
+
+function addTodo(newTodoInputTitle, newTodoTextarea) {
+  const newTodoTitle = newTodoInputTitle.value.trim();
+  const newTodoText = newTodoTextarea.value.trim();
+  if (newTodoTitle || newTodoText) {
+    const newTodo = { id: liItem++, checked: false, title: newTodoTitle, text: newTodoText };
     todos.push(newTodo);
-    newTodoInput.value = '';
+    localStorage.setItem('todos', JSON.stringify(todos));
+    newTodoInputTitle.value = '';
+    newTodoTextarea.value = '';
     renderTodos();
   }
 }
 
-function removeTodo(index) {
-  todos.splice(index, 1);
+
+function renderTodos(filteredTodos = todos) {
+  const todoList = document.getElementById('todo_list');
+  todoList.textContent = '';
+
+  filteredTodos.forEach((todo) => {
+
+    const listItemTemplate = document.getElementById('todo_item');
+    const listItem = listItemTemplate.content.firstElementChild.cloneNode(true);
+
+    listItem.dataset.id = todo.id;
+
+    const todoTitle = listItem.querySelector('.title');
+    todoTitle.textContent = todo.title;
+
+    const todoText = listItem.querySelector('.text');
+    todoText.textContent = todo.text;
+
+    const checkbox = listItem.querySelector('.item_check');
+    checkbox.checked = todo.checked;
+    console.log(checkbox.checked);
+    checkbox.addEventListener('change', (event) => toggleTodoStatus(event, listItem));
+
+    listItem.querySelector('.remove').addEventListener('click', () => removeTodo(todo.id));
+    listItem.querySelector('.edit').addEventListener('click', () => editTodo(todo.id, todoTitle, todoText));
+
+    listItem.classList.toggle('completed', todo.checked);
+
+    todoList.appendChild(listItem);
+  });
+}
+
+function removeTodo(id) {
+  todos = todos.filter((todo) => todo.id !== id);
   renderTodos();
+  saveToLocalStorage();
 }
 
-function editTodo(listItem, id) {
-  listItem.setAttribute('contenteditable', 'true');
-  listItem.focus();
-  listItem.addEventListener('blur', () => {
-    saveTodoChanges(id, listItem.textContent);
-  });
+function editTodo(id, todoTitle, todoText) {
+  isEditing = true;
+  editingTodoId = id;
 
-  listItem.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-      listItem.blur();
-    }
-  });
-}
-function saveTodoChanges(id, newText) {
-  console.log(`Saved changes for ${id}: ${newText}`);
+  const modalTitleInput = modalWindow.querySelector('#title');
+  const modalTextInput = modalWindow.querySelector('#text');
+  modalTitleInput.value = todoTitle.textContent;
+  modalTextInput.value = todoText.textContent;
+
+  modalWindow.showModal();
+  buttonSaveDialog.removeEventListener('click', saveToLocalStorage);
+  buttonSaveDialog.addEventListener('click', saveToLocalStorage);
 }
 
-function toggleTodoStatus(checkbox, listItem) {
-  console.log(checkbox);
-  if (checkbox.checked) {
-    listItem.classList.add('completed');
+function toggleTodoStatus(event, listItem) {
+  const id = listItem.dataset.id;
+  todos = todos.map((todo) => (String(todo.id) === id ? { ...todo, checked: !todo.checked } : todo));
+  saveToLocalStorage();
+  // renderTodos();
+}
 
-  } else {
-    listItem.classList.remove('completed');
+function filterTodos(filter) {
+  let filteredTodos;
+
+  if (filter.classList.contains('completed')) {
+    filteredTodos = todos.filter((todo) => todo.checked);
+  } else if (filter.classList.contains('all')) {
+    filteredTodos = todos;
+  } else if (filter.classList.contains('uncompleted')) {
+    filteredTodos = todos.filter((todo) => !todo.checked);
   }
+
+  return filteredTodos;
 }
+
+renderTodos();
+
+

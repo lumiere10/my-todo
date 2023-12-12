@@ -9,10 +9,76 @@
 </head>
 
 <body>
-  <h1>ToDo List</h1>
-  <input id="new_todo" placeholder="Add a new task">
-  <button class="add_todo">Add</button>
+  <h1 class="h1">ToDo List</h1>
+  <header>
+    <button class="all filter">All</button>
+    <button class="completed filter">Completed</button>
+    <button class="uncompleted filter">not completed</button>
+  </header>
+  <button class="add_todo"><svg width="123" height="123" viewBox="0 0 123 123" fill="none"
+      xmlns="http://www.w3.org/2000/svg">
+      <circle cx="61.5" cy="61.5" r="61.5" fill="#519BDF" />
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M66 34H58V58H34V66H58V90H66V66H90V58H66V34Z" fill="white" />
+    </svg>
+  </button>
+  <dialog id="dialog">
+    <button class="close"><svg width="60" height="60" viewBox="0 0 60 60" fill="none"
+        xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd"
+          d="M13.9078 10.0768L10.2716 13.713L26.4698 29.9113L10.0941 46.2871L13.7303 49.9232L30.1061 33.5475L46.2699 49.7112L49.9059 46.075L33.7423 29.9113L49.7286 13.925L46.0924 10.2888L30.1061 26.2751L13.9078 10.0768Z"
+          fill="#EDEDED" />
+      </svg>
+
+    </button>
+
+    <form method="dialog" class="form">
+      <!-- <form action="onsubmit='addTodo()'" class="form"> -->
+      <label for="title">Заголовок задачи *</label>
+      <input id="title" name="title" placeholder="Введите заголовок" required>
+      <label for="desc">Описание</label>
+      <textarea name="desc" id="text" cols="30" rows="10" placeholder="Введите текст описания"></textarea>
+      <button class="btn_save">Сохранить</button>
+    </form>
+  </dialog>
   <ul id="todo_list"></ul>
+  <template id="todo_item">
+    <li class="todo_item">
+      <div class="content">
+        <div class="wrapper">
+          <p class="title editable"></p>
+          <p class="text editable"></p>
+        </div>
+      </div>
+      <div class="buttons">
+
+        <button class="item_check"><svg width="60" height="60" viewBox="0 0 60 60" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M53.3421 11.6443C54.367 12.5696 54.4477 14.1504 53.5225 15.1753L23.7309 48.1753C23.2568 48.7003 22.5826 49 21.8752 49C21.1678 49 20.4935 48.7003 20.0195 48.1753L6.47785 33.1753C5.55263 32.1504 5.6334 30.5696 6.65826 29.6444C7.68312 28.7191 9.26397 28.7999 10.1892 29.8248L21.8752 42.7693L49.8112 11.8248C50.7364 10.7999 52.3172 10.7191 53.3421 11.6443Z"
+              fill="#939393" />
+          </svg>
+          <input type="checkbox" name="check" class="item_check">
+        </button>
+
+        <button class="edit"><svg width="60" height="60" viewBox="0 0 60 60" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M47.1613 10.6342L49.4195 12.8924C50.6672 14.1392 50.9353 16.4301 49.6875 17.676L48.1039 19.2597L41.0611 12.2169L42.6457 10.6342C43.8925 9.38733 45.9144 9.38733 47.1613 10.6342ZM32.0967 35.2658L25.0539 28.222L39.7819 13.496L46.8248 20.5399L32.0967 35.2658ZM23.9876 29.6825V36.719H30.5486L23.9876 29.6825ZM14.0274 45.7737H35.7587V35.4477L40.286 30.9203V47.1319C40.286 48.6313 39.5218 50.301 38.0224 50.301H12.6692C11.1688 50.301 9.5 48.6313 9.5 47.1319V21.7787C9.5 20.2783 11.1688 19.515 12.6692 19.515H29.9229L25.3956 24.0424H14.0274V45.7737Z"
+              fill="#939393" />
+          </svg>
+        </button>
+
+        <button class="remove"><svg width="60" height="60" viewBox="0 0 60 60" fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M13.908 10.0768L10.2717 13.713L26.47 29.9113L10.0942 46.2871L13.7305 49.9232L30.1062 33.5475L46.27 49.7112L49.906 46.075L33.7424 29.9113L49.7288 13.925L46.0925 10.2888L30.1062 26.2751L13.908 10.0768Z"
+              fill="#939393" />
+          </svg>
+        </button>
+      </div>
+    </li>
+  </template>
+
 </body>
 
 </html>
